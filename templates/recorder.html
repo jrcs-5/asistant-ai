@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant</title>
+    <link rel="stylesheet" href="../static/recorder.css">
+</head>
+<body>
+    <div class="container">
+        <!--Botones-->
+        <div>
+            <button id="record-start-btn" onclick="record()" class="audio-btn">
+                <img id="record-start-img" src="../static/img/record.png" class="img-btn">
+            </button>
+            <button id="record-stop-btn" onclick="stop()" class="audio-btn" style="display: none;">
+                <img id="record-stop-img" src="../static/img/stop.png" class="img-btn">
+                <span id="record-stop-loading" style="display: none" role="status" aria-hidden="true">loading</span>
+            </button>
+        </div>
+        <!--Mensaje-->
+        <div>
+            <div id="text"></div>
+        </div>
+        <canvas id="waveform" style="display: none"></canvas>
+    </div>
+    <script src="../static/recorder.js"></script>
+    <script type="text/javascript">
+        recorder("/audio", response => {
+            document.getElementById("record-start-btn").style.display = "";
+            document.getElementById("record-start-btn").style.disabled = false;
+            document.getElementById("record-start-img").style.display = "";
+            document.getElementById("record-stop-btn").style.display = "none";
+            document.getElementById("record-stop-loading").style.display = "none";
+            document.getElementById("waveform").style.display = "none";
+            if (!response || !response.text) {
+                console.error("Respuesta inesperada: ", response);
+                return;
+            }
+            console.log("El texto fue: " + response.text);
+            document.getElementById("text").innerHTML = response.text;
+            if (typeof response.file !== "undefined") {
+                audioFile = response.file;
+                let audio = new Audio();
+                //Se tiene que hacer porque o sino la pagina web guarda el archivo de audio y por mas que se cambie solo utiliza el primero
+                audio.setAttribute("src", `temp/${audioFile}?t=${new Date().getTime()}`);
+                audio.play();
+            }
+        });
+    </script>
+</body>
+</html>
